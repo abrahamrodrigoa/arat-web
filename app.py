@@ -4,27 +4,27 @@ from googleapiclient.discovery import build
 
 app = FastAPI()
 
-# 🔐 TU API KEY (la misma que pondrás en GPT)
+# 🔐 API KEY (la misma que usarás en GPT)
 API_KEY = "ius_constitucional_v1_3111979_K#9Lp!"
 
 def check_key(x_api_key: str = Header(None)):
     if x_api_key != API_KEY:
         raise HTTPException(status_code=403, detail="No autorizado")
 
-# 🔗 CONFIG GOOGLE DRIVE
+# 🔗 CONFIG GOOGLE DRIVE (RUTA RELATIVA PARA RENDER)
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
 
 creds = service_account.Credentials.from_service_account_file(
-    r'D:\Agentes IA\02 Juridic-IA\dip-python-490901-a9641d72ce14.json',
+    'dip-python-490901-a9641d72ce14.json',  # ⚠️ SIN ruta de Windows
     scopes=SCOPES
 )
 
 service = build('drive', 'v3', credentials=creds)
 
-# 📁 ID de tu carpeta principal
+# 📁 CARPETA PRINCIPAL
 FOLDER_ID = "1TQwJMW-JRI8iq2dakW9-70fLKbGhkCk5"
 
-# 🗂️ MAPEO DE CARPETAS (según lo que listaste)
+# 🗂️ MAPEO DE CARPETAS
 CARPETAS = {
     "amparo": "101xGs2qhV7nU2lmrPmmtxOUCwtPWHY6T",
     "libertad": "14km3DYdOVkt6m3uP2lCWAPXotWJZsPNX",
@@ -33,7 +33,7 @@ CARPETAS = {
     "inconstitucionalidad": "1KdAeRUNsXdmNGDTe32ux1shomlI8t8Un",
 }
 
-# 🧠 Detectar tipo automáticamente
+# 🧠 DETECTOR DE TIPO
 def detectar_tipo(texto):
     texto = texto.lower()
 
@@ -50,7 +50,12 @@ def detectar_tipo(texto):
     else:
         return "amparo"
 
-# 📁 Listar todo (raíz)
+# 🏠 ROOT (para evitar "Not Found")
+@app.get("/")
+def root():
+    return {"mensaje": "API IUS Constitucional activa"}
+
+# 📁 LISTAR CARPETAS
 @app.get("/listar")
 def listar(x_api_key: str = Header(None)):
     check_key(x_api_key)
@@ -62,7 +67,7 @@ def listar(x_api_key: str = Header(None)):
 
     return results.get('files', [])
 
-# 📂 Listar archivos dentro de una carpeta por tipo
+# 📂 LISTAR ARCHIVOS POR TIPO
 @app.get("/archivos")
 def archivos(tipo: str, x_api_key: str = Header(None)):
     check_key(x_api_key)
@@ -79,7 +84,7 @@ def archivos(tipo: str, x_api_key: str = Header(None)):
 
     return results.get('files', [])
 
-# ⚖️ Selección automática según texto del usuario
+# ⚖️ SELECCIÓN AUTOMÁTICA
 @app.post("/seleccionar")
 def seleccionar(data: dict, x_api_key: str = Header(None)):
     check_key(x_api_key)
