@@ -17,7 +17,7 @@ def check_key(x_api_key: str = Header(None)):
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-JSON_PATH = os.path.join(BASE_DIR, "dip-python-490901-a9641d72ce14.json")
+JSON_PATH = os.path.join(BASE_DIR, "dip-python-490901-e6f32ef460c7.json")
 
 service = None
 
