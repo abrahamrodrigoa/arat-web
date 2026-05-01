@@ -1,21 +1,30 @@
 from fastapi import FastAPI, Header, HTTPException
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+import os
 
 app = FastAPI()
 
-# 🔐 API KEY (la misma que usarás en GPT)
+# 🔐 API KEY
 API_KEY = "ius_constitucional_v1_3111979_K#9Lp!"
 
 def check_key(x_api_key: str = Header(None)):
     if x_api_key != API_KEY:
         raise HTTPException(status_code=403, detail="No autorizado")
 
-# 🔗 CONFIG GOOGLE DRIVE (RUTA RELATIVA PARA RENDER)
+# 🔗 CONFIG GOOGLE DRIVE
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
 
+# ✅ RUTA SEGURA (funciona en Railway)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+JSON_PATH = os.path.join(BASE_DIR, "dip-python-490901-a9641d72ce14.json")
+
+# ⚠️ VALIDACIÓN PARA EVITAR CRASH
+if not os.path.exists(JSON_PATH):
+    raise Exception(f"No se encontró el archivo JSON en: {JSON_PATH}")
+
 creds = service_account.Credentials.from_service_account_file(
-    'dip-python-490901-a9641d72ce14.json',  # ⚠️ SIN ruta de Windows
+    JSON_PATH,
     scopes=SCOPES
 )
 
@@ -24,7 +33,7 @@ service = build('drive', 'v3', credentials=creds)
 # 📁 CARPETA PRINCIPAL
 FOLDER_ID = "1TQwJMW-JRI8iq2dakW9-70fLKbGhkCk5"
 
-# 🗂️ MAPEO DE CARPETAS
+# 🗂️ MAPEO
 CARPETAS = {
     "amparo": "101xGs2qhV7nU2lmrPmmtxOUCwtPWHY6T",
     "libertad": "14km3DYdOVkt6m3uP2lCWAPXotWJZsPNX",
@@ -33,8 +42,8 @@ CARPETAS = {
     "inconstitucionalidad": "1KdAeRUNsXdmNGDTe32ux1shomlI8t8Un",
 }
 
-# 🧠 DETECTOR DE TIPO
-def detectar_tipo(texto):
+# 🧠 DETECTOR
+def detectar_tipo(texto: str):
     texto = texto.lower()
 
     if "amparo" in texto:
@@ -50,24 +59,27 @@ def detectar_tipo(texto):
     else:
         return "amparo"
 
-# 🏠 ROOT (para evitar "Not Found")
+# 🏠 ROOT
 @app.get("/")
 def root():
     return {"mensaje": "API IUS Constitucional activa"}
 
-# 📁 LISTAR CARPETAS
+# 📁 LISTAR
 @app.get("/listar")
 def listar(x_api_key: str = Header(None)):
     check_key(x_api_key)
 
-    results = service.files().list(
-        q=f"'{FOLDER_ID}' in parents",
-        fields="files(id, name)"
-    ).execute()
+    try:
+        results = service.files().list(
+            q=f"'{FOLDER_ID}' in parents",
+            fields="files(id, name)"
+        ).execute()
 
-    return results.get('files', [])
+        return results.get('files', [])
+    except Exception as e:
+        return {"error": str(e)}
 
-# 📂 LISTAR ARCHIVOS POR TIPO
+# 📂 ARCHIVOS
 @app.get("/archivos")
 def archivos(tipo: str, x_api_key: str = Header(None)):
     check_key(x_api_key)
@@ -77,29 +89,34 @@ def archivos(tipo: str, x_api_key: str = Header(None)):
     if not folder_id:
         return {"error": "tipo no válido"}
 
-    results = service.files().list(
-        q=f"'{folder_id}' in parents",
-        fields="files(id, name)"
-    ).execute()
+    try:
+        results = service.files().list(
+            q=f"'{folder_id}' in parents",
+            fields="files(id, name)"
+        ).execute()
 
-    return results.get('files', [])
+        return results.get('files', [])
+    except Exception as e:
+        return {"error": str(e)}
 
-# ⚖️ SELECCIÓN AUTOMÁTICA
+# ⚖️ SELECCIONAR
 @app.post("/seleccionar")
 def seleccionar(data: dict, x_api_key: str = Header(None)):
     check_key(x_api_key)
 
     query = data.get("texto", "")
-
     tipo = detectar_tipo(query)
     folder_id = CARPETAS.get(tipo)
 
-    results = service.files().list(
-        q=f"'{folder_id}' in parents",
-        fields="files(id, name)"
-    ).execute()
+    try:
+        results = service.files().list(
+            q=f"'{folder_id}' in parents",
+            fields="files(id, name)"
+        ).execute()
 
-    return {
-        "tipo_detectado": tipo,
-        "archivos": results.get('files', [])
-    }
+        return {
+            "tipo_detectado": tipo,
+            "archivos": results.get('files', [])
+        }
+    except Exception as e:
+        return {"error": str(e)}
