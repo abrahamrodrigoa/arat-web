@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "dip-python-490901",
+  "private_key_id": "437f4efef791ddced9409fe9f4f8eaa2a83b71b8",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDFXA7ABH6X8fvY\nud15GF1GB8ETEJ726srZZvPjmIGK67lUktWbByRo9ZNG2dKjeCf39TKGOKmFAMO4\n/Dvll2zVCqMdtgxb3GCASBcFZFiF3skMhfntsY6ORKz6xZw5Qv7ClZCfd/aT7xhc\nm9JKPnBWKS6eFY2zELMl2H8iauC3pEOl0HDWA2M1nYp4kQgxo0h7mJIadWmYoAq2\n522OEoD0Anux5YE3WWbpthZzz8z+jvnkxv0g7EpQT1/SCzp39pvl1OXydH92pzlh\n4zyiBsmYLymqroFtrs8muUIyY5dsj3hTuChjgKhDe8a12K2Doz8CxwJK7K5ZhNzq\nZPphKfbVAgMBAAECggEADdQVdH7cH+lkrBrZ2dJLNsz0SlGv0b1B2VnNXPUinolF\nwxdGwEYP1wrd9ujsSWfx5P3ZPG5b8mXLUPrbd4rUpVjJdRt8YjNez549frM5QKgL\njkUU7gKy6mUFecy+1YRMNXYlXAcbz+HA4zxHz8vwMxlPmuQHubRB2TUCM3cpp7RL\nRWvysGlcOvu2Qdt253ipLxlrjO0KRd4O2aCP15Aka2/ValumTiefNH8X1oLpmL7Y\ny8qPiSq3qaS/s5Vnx/xqTR3oBhJy2cUP7yB0x3//slP1mjqSXEhS1oJn7wkduvwV\n3JWQuXtYav9Bj/NSig9G7EVpZpMARjSYjw9wFjN6AQKBgQDn3jhX3Qf3FGON9ogQ\nDz3kgXDHD6pN0IQObZ9Zk/sbUpKaToGopMh8vS/QbgR8HBjIgc8Ni7kqRK2nbsRU\n9vgxpHpD+oIAQTaqQl2UG6Zw8gxt7ExDad56qLKsyaoiiuldZSfLsd8tVMykFQra\nllctgFKkJ0DNFuAR23KSEOEySQKBgQDZ5mlDGVBZJ+tsJEfP1NFIyPN213ik/EWl\nVc1ZGU/Q6le/0QuAnH5UiWLMZmveD3t1efkWn1T5cmkBEO300CWI8YJ8SIi+wCX7\ntj75QIj59/6coAvo5OQAte2x30zQhwLTFvVOeaeeQhpdix+/cv5pLCLhfC26ZESH\nEEj6SPMgLQKBgHiS9nm6VwoFcD/Ck77GLklFhn/9hXIxnHpkRxkt+saaieH0MTih\neCBlwReCHpLriXe7CRDiN8fjLuqCj1Yfl7E49tuiyTeYsfSXzlHWjxbsx8nht0bX\nJvph/4ga1n5f/jqy/57NQGEyV7h7uMkypOLkeBUk1G3SF3MxysJqRLEBAoGBAIEA\nHstBnkbaEk84f2c0OB6eET0HPX53d4f1bxfTm2Q0iHSf/u5KN6Q2nc4iyLNzeQTI\njEXvWDBBopal/ipUXBRh3n1Tt9kuCo6li0ym/zD1t7/kJIjhkXY2Pp1ydJhzhaGQ\n0vN9pFVWDyPYLJh8LM/4+EGD8dKKb+OCKaI7M+yVAoGANzH6YgB+acuqiN5C0Ci8\n7zN4CY+y65AmcmeJZESyDoUqH5yhlnjS+qWELvhrGtra0E/TGvZ6paIMqwEnHNmK\nJiaOZcO54t9wNXzxNN+km4MQpE23Vj4PNmIcj0SpE8KKNKuwmwa+ARBDcP/7fPQV\n6Iy0YsdVQ5oGqzE0wDzJVG4=\n-----END PRIVATE KEY-----\n",
+  "client_email": "drive-bot-juridico@dip-python-490901.iam.gserviceaccount.com",
+  "client_id": "111712982381634644813",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/drive-bot-juridico%40dip-python-490901.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
