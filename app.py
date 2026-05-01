@@ -116,3 +116,5 @@ def seleccionar(data: dict, x_api_key: str = Header(None)):
         "tipo_detectado": tipo,
         "archivos": results.get('files', [])
     }
+
+print("🚀 APP INICIADA CORRECTAMENTE")
