@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip show *)",
+      "Bash(Select-String \"Version|not found\")",
+      "PowerShell($settingsPath = \"$env:APPDATA\\\\Code\\\\User\\\\settings.json\"; Test-Path $settingsPath)",
+      "Read(//c/Users/Tja/AppData/Roaming/Code/User/**)"
+    ]
+  }
+}
