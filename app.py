@@ -1,7 +1,10 @@
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, Header, HTTPException, Query
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseDownload
 import os
+import io
+import pandas as pd
 
 app = FastAPI()
 
@@ -40,7 +43,6 @@ CARPETAS = {
     "inconstitucionalidad": "1KdAeRUNsXdmNGDTe32ux1shomlI8t8Un",
 }
 
-# 🧠 INTELIGENCIA DE INTERPRETACIÓN
 SINONIMOS = {
     "amparo": ["amparo", "acción de amparo", "protección constitucional"],
     "libertad": ["libertad", "acción de libertad", "habeas corpus"],
@@ -51,71 +53,124 @@ SINONIMOS = {
 
 def detectar_tipo(texto: str):
     texto = texto.lower()
-
     for tipo, palabras in SINONIMOS.items():
         for palabra in palabras:
             if palabra in texto:
                 return tipo
+    return "amparo"
 
-    return "amparo"  # default
 
 @app.get("/")
 def root():
     return {"mensaje": "API IUS Constitucional activa"}
 
+
 @app.get("/listar")
 def listar(x_api_key: str = Header(None)):
     check_key(x_api_key)
-
     if not service:
         return {"error": "Drive no configurado"}
-
     results = service.files().list(
         q=f"'{FOLDER_ID}' in parents",
         fields="files(id, name)"
     ).execute()
-
     return results.get('files', [])
+
 
 @app.get("/archivos")
 def archivos(tipo: str, x_api_key: str = Header(None)):
     check_key(x_api_key)
-
     if not service:
         return {"error": "Drive no configurado"}
-
     tipo_detectado = detectar_tipo(tipo)
-
     folder_id = CARPETAS.get(tipo_detectado)
-
     results = service.files().list(
         q=f"'{folder_id}' in parents",
         fields="files(id, name)"
     ).execute()
-
     return {
         "tipo_detectado": tipo_detectado,
         "archivos": results.get('files', [])
     }
 
+
 @app.post("/seleccionar")
 def seleccionar(data: dict, x_api_key: str = Header(None)):
     check_key(x_api_key)
-
     if not service:
         return {"error": "Drive no configurado"}
-
     texto = data.get("texto", "")
-
     tipo = detectar_tipo(texto)
     folder_id = CARPETAS.get(tipo)
-
     results = service.files().list(
         q=f"'{folder_id}' in parents",
         fields="files(id, name)"
     ).execute()
-
     return {
         "tipo_detectado": tipo,
         "archivos": results.get('files', [])
+    }
+
+
+@app.get("/sentencias")
+def sentencias(
+    buscar: str = Query(None, description="Palabra clave a buscar en todas las columnas"),
+    tipo: str = Query(None, description="Filtrar por tipo: amparo, libertad, reposicion, cumplimiento, inconstitucionalidad"),
+    limite: int = Query(20, description="Máximo de resultados a devolver"),
+    x_api_key: str = Header(None)
+):
+    check_key(x_api_key)
+    if not service:
+        return {"error": "Drive no configurado"}
+
+    # Buscar archivo Excel en la carpeta principal de Drive
+    results = service.files().list(
+        q=(
+            f"'{FOLDER_ID}' in parents and ("
+            "mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' or "
+            "mimeType='application/vnd.ms-excel'"
+            ")"
+        ),
+        fields="files(id, name)"
+    ).execute()
+
+    archivos_excel = results.get('files', [])
+    if not archivos_excel:
+        return {"error": "No se encontró ningún archivo Excel en la carpeta de Drive"}
+
+    file_id = archivos_excel[0]['id']
+    file_name = archivos_excel[0]['name']
+
+    # Descargar el archivo Excel en memoria
+    request = service.files().get_media(fileId=file_id)
+    buffer = io.BytesIO()
+    downloader = MediaIoBaseDownload(buffer, request)
+    done = False
+    while not done:
+        _, done = downloader.next_chunk()
+
+    buffer.seek(0)
+    df = pd.read_excel(buffer, dtype=str)
+    df = df.fillna("")
+
+    # Filtrar por tipo de acción
+    if tipo:
+        tipo_lower = tipo.lower()
+        mask = df.apply(lambda col: col.str.lower().str.contains(tipo_lower, na=False)).any(axis=1)
+        df = df[mask]
+
+    # Buscar por palabra clave en todas las columnas
+    if buscar:
+        buscar_lower = buscar.lower()
+        mask = df.apply(lambda col: col.str.lower().str.contains(buscar_lower, na=False)).any(axis=1)
+        df = df[mask]
+
+    total_encontrados = len(df)
+    df = df.head(limite)
+
+    return {
+        "archivo_fuente": file_name,
+        "total_encontrados": total_encontrados,
+        "mostrando": len(df),
+        "sentencias": df.to_dict(orient="records")
     }
